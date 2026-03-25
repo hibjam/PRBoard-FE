@@ -7,7 +7,24 @@ import ProfilePage from './components/ProfilePage'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import './App.css'
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? ''
+function WakingUp() {
+  const [showMessage, setShowMessage] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setShowMessage(true), 4000)
+    return () => clearTimeout(t)
+  }, [])
+  return (
+    <div className="loading-screen">
+      <div className="loading-logo"><span>PR</span>BOARD</div>
+      <div className="loading-bar" />
+      {showMessage && (
+        <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '0.8rem', marginTop: '16px' }}>
+          Hang tight, PRBoard is just waking up...
+        </p>
+      )}
+    </div>
+  )
+}
 
 function App() {
   const { isLoading, isAuthenticated, loginWithRedirect, user, getAccessTokenSilently, logout } = useAuth0()
@@ -25,7 +42,10 @@ function App() {
   const fetchProfile = useCallback(async () => {
     try {
       const headers = await getHeaders()
-      const res = await axios.get(`${API_BASE}/users/profile`, { headers })
+      const res = await axios.get(`${API_BASE}/users/profile`, {
+        headers,
+        timeout: 60000, // 60s timeout to allow for Render cold start
+      })
       setProfile(res.data)
     } catch (e) {
       console.error('Failed to load profile', e)
@@ -53,12 +73,7 @@ function App() {
   }
 
   if (isLoading || (isAuthenticated && profileLoading)) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-logo"><span>PR</span>BOARD</div>
-        <div className="loading-bar" />
-      </div>
-    )
+    return <WakingUp />
   }
 
   if (!isAuthenticated) {
