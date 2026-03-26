@@ -7,6 +7,8 @@ import ProfilePage from './components/ProfilePage'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import './App.css'
 
+const API_BASE = import.meta.env.VITE_API_BASE ?? ''
+
 function WakingUp() {
   const [showMessage, setShowMessage] = useState(false)
   useEffect(() => {
@@ -19,7 +21,7 @@ function WakingUp() {
       <div className="loading-bar" />
       {showMessage && (
         <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '0.8rem', marginTop: '16px' }}>
-          Hang tight, PRBoard is just waking up...
+          Hang tight, the server is just waking up!
         </p>
       )}
     </div>
@@ -44,7 +46,7 @@ function App() {
       const headers = await getHeaders()
       const res = await axios.get(`${API_BASE}/users/profile`, {
         headers,
-        timeout: 60000, // 60s timeout to allow for Render cold start
+        timeout: 120000, // 120s timeout to allow for Render cold start
       })
       setProfile(res.data)
     } catch (e) {
