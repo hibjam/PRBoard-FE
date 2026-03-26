@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDisciplines } from '../hooks/useDisciplines'
+import WakingUp from './WakingUp'
 
 function ProfileSetup({ onComplete, onSave, onSkip, onSignOut, getHeaders }) {
   const { disciplines, loading: disciplinesLoading } = useDisciplines(getHeaders)
@@ -51,7 +52,7 @@ function ProfileSetup({ onComplete, onSave, onSkip, onSignOut, getHeaders }) {
         <div className="profile-setup-section">
           <span className="profile-setup-label">Your sports *</span>
           {disciplinesLoading ? (
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Loading sports...</p>
+            <WakingUp message="Loading your sports..." />
           ) : (
             <div className="sport-picker">
               {disciplines.map(({ code, displayName }) => (

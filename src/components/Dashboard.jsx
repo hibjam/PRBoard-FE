@@ -4,6 +4,7 @@ import RecentActivities from './RecentActivities'
 import TrendChart from './TrendChart'
 import PrSection from './PrSection'
 import axios from 'axios'
+import WakingUp from './WakingUp'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? ''
 const MAX_SELECTED = 3
@@ -142,12 +143,7 @@ function Dashboard({ profile, getHeaders, onEditProfile }) {
   }
 
   if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-logo"><span>PR</span>BOARD</div>
-        <div className="loading-bar" />
-      </div>
-    )
+      return <WakingUp message="Just waking up... Then loading your dashboard..." />
   }
 
   if (!profile?.disciplines?.length) {

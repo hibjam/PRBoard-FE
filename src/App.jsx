@@ -5,28 +5,10 @@ import Dashboard from './components/Dashboard'
 import ProfileSetup from './components/ProfileSetup'
 import ProfilePage from './components/ProfilePage'
 import PrivacyPolicy from './components/PrivacyPolicy'
+import WakingUp from './components/WakingUp'
 import './App.css'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? ''
-
-function WakingUp() {
-  const [showMessage, setShowMessage] = useState(false)
-  useEffect(() => {
-    const t = setTimeout(() => setShowMessage(true), 4000)
-    return () => clearTimeout(t)
-  }, [])
-  return (
-    <div className="loading-screen">
-      <div className="loading-logo"><span>PR</span>BOARD</div>
-      <div className="loading-bar" />
-      {showMessage && (
-        <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-body)', fontSize: '0.8rem', marginTop: '16px' }}>
-          Hang tight, the server is just waking up!
-        </p>
-      )}
-    </div>
-  )
-}
 
 function App() {
   const { isLoading, isAuthenticated, loginWithRedirect, user, getAccessTokenSilently, logout } = useAuth0()
