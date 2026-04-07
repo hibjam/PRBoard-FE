@@ -10,19 +10,19 @@ const API_BASE = import.meta.env.VITE_API_BASE ?? ''
 const MAX_SELECTED = 3
 
 const DISCIPLINE_CONFIG = {
-  RUN:          { label: 'Running' },
-  TRAIL_RUN:    { label: 'Trail running' },
-  BIKE:         { label: 'Cycling' },
-  SWIM:         { label: 'Swimming' },
-  ROW:          { label: 'Rowing' },
-  HIKE:         { label: 'Hiking' },
-  WEIGHTLIFT:   { label: 'Weightlifting' },
+  RUN: { label: 'Running' },
+  TRAIL_RUN: { label: 'Trail running' },
+  BIKE: { label: 'Cycling' },
+  SWIM: { label: 'Swimming' },
+  ROW: { label: 'Rowing' },
+  HIKE: { label: 'Hiking' },
+  WEIGHTLIFT: { label: 'Weightlifting' },
   POWERLIFTING: { label: 'Powerlifting' },
   OLYMPIC_LIFT: { label: 'Olympic lifting' },
 }
 
 const ENDURANCE_DISCIPLINES = new Set(['RUN', 'TRAIL_RUN', 'BIKE', 'SWIM', 'ROW', 'HIKE'])
-const LIFTING_DISCIPLINES   = new Set(['WEIGHTLIFT', 'POWERLIFTING', 'OLYMPIC_LIFT'])
+const LIFTING_DISCIPLINES = new Set(['WEIGHTLIFT', 'POWERLIFTING', 'OLYMPIC_LIFT'])
 
 function oneMonthAgo() {
   const d = new Date()
@@ -31,25 +31,25 @@ function oneMonthAgo() {
 }
 
 function Dashboard({ profile, getHeaders, onEditProfile }) {
-  const [recent, setRecent]                = useState([])
-  const [trends, setTrends]                = useState([])
-  const [prs, setPrs]                      = useState([])
-  const [groupBy, setGroupBy]              = useState('monthly')
-  const [trendFrom, setTrendFrom]          = useState(oneMonthAgo())
-  const [trendTo, setTrendTo]              = useState('')
+  const [recent, setRecent] = useState([])
+  const [trends, setTrends] = useState([])
+  const [prs, setPrs] = useState([])
+  const [groupBy, setGroupBy] = useState('monthly')
+  const [trendFrom, setTrendFrom] = useState(oneMonthAgo())
+  const [trendTo, setTrendTo] = useState('')
   const [selectedDisciplines, setSelected] = useState(new Set())
-  const [loading, setLoading]              = useState(true)
-  const [syncing, setSyncing]              = useState(false)
-  const [connectingStrava, setConnecting]  = useState(false)
-  const [error, setError]                  = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
+  const [connectingStrava, setConnecting] = useState(false)
+  const [error, setError] = useState(null)
 
   const groupByRef = useRef(groupBy)
-  const fromRef    = useRef(trendFrom)
-  const toRef      = useRef(trendTo)
+  const fromRef = useRef(trendFrom)
+  const toRef = useRef(trendTo)
 
-  useEffect(() => { groupByRef.current = groupBy   }, [groupBy])
-  useEffect(() => { fromRef.current    = trendFrom }, [trendFrom])
-  useEffect(() => { toRef.current      = trendTo   }, [trendTo])
+  useEffect(() => { groupByRef.current = groupBy }, [groupBy])
+  useEffect(() => { fromRef.current = trendFrom }, [trendFrom])
+  useEffect(() => { toRef.current = trendTo }, [trendTo])
 
   // Initialise selected disciplines from profile
   useEffect(() => {
@@ -65,7 +65,7 @@ function Dashboard({ profile, getHeaders, onEditProfile }) {
       const headers = await getHeaders()
 
       const fromParam = fromRef.current ? `&from=${new Date(fromRef.current + 'T00:00:00Z').toISOString()}` : ''
-      const toParam   = toRef.current   ? `&to=${new Date(toRef.current   + 'T23:59:59Z').toISOString()}`   : ''
+      const toParam = toRef.current ? `&to=${new Date(toRef.current + 'T23:59:59Z').toISOString()}` : ''
 
       const [recentRes, trendsRes, prsRes] = await Promise.allSettled([
         axios.get(`${API_BASE}/stats/recent?limit=50`, { headers }),
@@ -75,7 +75,7 @@ function Dashboard({ profile, getHeaders, onEditProfile }) {
 
       if (recentRes.status === 'fulfilled') setRecent(recentRes.value.data)
       if (trendsRes.status === 'fulfilled') setTrends(trendsRes.value.data)
-      if (prsRes.status    === 'fulfilled') setPrs(prsRes.value.data)
+      if (prsRes.status === 'fulfilled') setPrs(prsRes.value.data)
     } catch (e) {
       console.error('Dashboard fetch error:', e)
       setError('Failed to load data. Is the backend running?')
@@ -143,7 +143,7 @@ function Dashboard({ profile, getHeaders, onEditProfile }) {
   }
 
   if (loading) {
-      return <WakingUp message="Just waking up... Then loading your dashboard..." />
+    return <WakingUp message="Just waking up... Then loading your dashboard..." />
   }
 
   if (!profile?.disciplines?.length) {
@@ -157,18 +157,26 @@ function Dashboard({ profile, getHeaders, onEditProfile }) {
     )
   }
 
-  const selectedRecent  = recent.filter(a => selectedDisciplines.has(a.discipline))
-  const selectedPrs     = prs.filter(p => selectedDisciplines.has(p.discipline))
+  const selectedRecent = recent.filter(a => selectedDisciplines.has(a.discipline))
+  const selectedPrs = prs.filter(p => selectedDisciplines.has(p.discipline))
   const enduranceTrends = trends.filter(t =>
     ENDURANCE_DISCIPLINES.has(t.discipline) && selectedDisciplines.has(t.discipline))
-  const liftingTrends   = trends.filter(t =>
+  const liftingTrends = trends.filter(t =>
     LIFTING_DISCIPLINES.has(t.discipline) && selectedDisciplines.has(t.discipline))
 
   return (
     <div className="dashboard">
       <div className="dashboard-toolbar">
-        <button className="btn-connect-strava" onClick={connectStrava} disabled={connectingStrava}>
-          {connectingStrava ? 'Connecting...' : 'Connect Strava'}
+        <button
+          className="btn-connect-strava-official"
+          onClick={connectStrava}
+          disabled={connectingStrava}
+          style={{ background: 'none', border: 'none', padding: 0, cursor: connectingStrava ? 'not-allowed' : 'pointer', opacity: connectingStrava ? 0.5 : 1 }}
+        >
+          {connectingStrava
+            ? <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'var(--font-body)' }}>Connecting...</span>
+            : <img src="/btn_strava_connect_with_orange.png" alt="Connect with Strava" height="48" />
+          }
         </button>
         <button className="btn-sync" onClick={syncStrava} disabled={syncing}>
           {syncing ? 'Syncing...' : 'Sync'}
@@ -182,7 +190,7 @@ function Dashboard({ profile, getHeaders, onEditProfile }) {
           {profile.disciplines.map(discipline => {
             const config = DISCIPLINE_CONFIG[discipline] ?? { label: discipline }
             const active = selectedDisciplines.has(discipline)
-            const maxed  = !active && selectedDisciplines.size >= MAX_SELECTED
+            const maxed = !active && selectedDisciplines.size >= MAX_SELECTED
             return (
               <button
                 key={discipline}
@@ -215,12 +223,12 @@ function Dashboard({ profile, getHeaders, onEditProfile }) {
       )}
 
       {enduranceTrends.length > 0 && (
-        <div className="panel fade-in" style={{ marginBottom: '16px' }}>
+        <div className="panel fade-in" style={{ marginBottom: '16px', position: 'relative' }}>
           <div className="panel-header">
             <span className="panel-title">Endurance trends</span>
             <div className="chart-controls">
               <div className="trend-toggle">
-                <button className={groupBy === 'weekly'  ? 'active' : ''} onClick={() => setGroupBy('weekly')}>Weekly</button>
+                <button className={groupBy === 'weekly' ? 'active' : ''} onClick={() => setGroupBy('weekly')}>Weekly</button>
                 <button className={groupBy === 'monthly' ? 'active' : ''} onClick={() => setGroupBy('monthly')}>Monthly</button>
               </div>
               <div className="date-range">
@@ -235,15 +243,21 @@ function Dashboard({ profile, getHeaders, onEditProfile }) {
             disciplines={[...selectedDisciplines].filter(d => ENDURANCE_DISCIPLINES.has(d))}
             type="endurance"
           />
+          <img
+            src="/api_logo_pwrdBy_strava_horiz_white.png"
+            alt="Powered by Strava"
+            title="Powered by Strava"
+            style={{ position: 'absolute', bottom: '12px', left: '16px', height: '14px', opacity: 0.5 }}
+          />
         </div>
       )}
 
       {liftingTrends.length > 0 && (
-        <div className="panel fade-in" style={{ marginBottom: '16px' }}>
+        <div className="panel fade-in" style={{ marginBottom: '16px', position: 'relative' }}>
           <div className="panel-header">
             <span className="panel-title">Lifting trends</span>
             <div className="trend-toggle">
-              <button className={groupBy === 'weekly'  ? 'active' : ''} onClick={() => setGroupBy('weekly')}>Weekly</button>
+              <button className={groupBy === 'weekly' ? 'active' : ''} onClick={() => setGroupBy('weekly')}>Weekly</button>
               <button className={groupBy === 'monthly' ? 'active' : ''} onClick={() => setGroupBy('monthly')}>Monthly</button>
             </div>
           </div>
@@ -251,6 +265,12 @@ function Dashboard({ profile, getHeaders, onEditProfile }) {
             trends={liftingTrends}
             disciplines={[...selectedDisciplines].filter(d => LIFTING_DISCIPLINES.has(d))}
             type="lifting"
+          />
+          <img
+            src="/api_logo_pwrdBy_strava_horiz_white.png"
+            alt="Powered by Strava"
+            title="Powered by Strava"
+            style={{ position: 'absolute', bottom: '12px', left: '16px', height: '14px', opacity: 0.5 }}
           />
         </div>
       )}

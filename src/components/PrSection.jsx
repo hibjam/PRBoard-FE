@@ -27,7 +27,6 @@ const KM_TO_MILES = 0.621371
 
 function convertFormattedValue(formattedValue, prType, preferredUnits) {
   if (preferredUnits !== 'mi') return formattedValue
-  // Only convert distance values — time and weight stay as-is
   if (prType === 'LONGEST_ACTIVITY' && formattedValue?.endsWith(' km')) {
     const km = parseFloat(formattedValue)
     const miles = (km * KM_TO_MILES).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 1 })
@@ -37,10 +36,10 @@ function convertFormattedValue(formattedValue, prType, preferredUnits) {
 }
 
 function PrCard({ pr, onDelete, preferredUnits }) {
-  const typeLabel      = PR_TYPE_LABEL[pr.prType] ?? pr.prType
-  const targetLabel    = pr.targetLabel ? ` — ${pr.targetLabel}` : ''
-  const canDelete      = pr.targetId && !pr.preset
-  const displayValue   = convertFormattedValue(pr.formattedValue, pr.prType, preferredUnits)
+  const typeLabel    = PR_TYPE_LABEL[pr.prType] ?? pr.prType
+  const targetLabel  = pr.targetLabel ? ` — ${pr.targetLabel}` : ''
+  const canDelete    = pr.targetId && !pr.preset
+  const displayValue = convertFormattedValue(pr.formattedValue, pr.prType, preferredUnits)
 
   return (
     <div className="pr-card" data-discipline={pr.discipline}>
@@ -147,11 +146,7 @@ function AddTargetForm({ disciplines, getHeaders, onAdded }) {
         maxLength={30}
       />
 
-      <button
-        className="pr-add-btn"
-        onClick={handleAdd}
-        disabled={saving}
-      >
+      <button className="pr-add-btn" onClick={handleAdd} disabled={saving}>
         {saving ? '...' : '+ Add'}
       </button>
 
@@ -180,7 +175,6 @@ function PrSection({ prs, getHeaders, onRefresh, preferredUnits = 'km' }) {
     return acc
   }, {})
 
-  // Sort each group: distance PRs by target distance ascending, then non-distance PRs at the end
   Object.values(grouped).forEach(records => {
     records.sort((a, b) => {
       const aD = a.targetDistanceMetres ?? Infinity
@@ -189,10 +183,11 @@ function PrSection({ prs, getHeaders, onRefresh, preferredUnits = 'km' }) {
     })
   })
 
-  const disciplines = Object.keys(grouped)
+  const disciplines  = Object.keys(grouped)
+  const hasStrava    = prs.some(pr => pr.source === 'STRAVA')
 
   return (
-    <div className="pr-section fade-in">
+    <div className="pr-section fade-in" style={{ position: 'relative', paddingBottom: '30px' }}>
       <div className="pr-section-header">
         <span className="panel-title">Personal records</span>
         <button
@@ -234,6 +229,21 @@ function PrSection({ prs, getHeaders, onRefresh, preferredUnits = 'km' }) {
           ))}
         </div>
       </div>
+
+      {hasStrava && (
+        <img
+          src="/api_logo_pwrdBy_strava_horiz_white.png"
+          alt="Powered by Strava"
+          title="Powered by Strava"
+          style={{
+            position: 'absolute',
+            bottom: '8px',
+            left: '16px',
+            height: '14px',
+            opacity: 0.5,
+          }}
+        />
+      )}
     </div>
   )
 }
