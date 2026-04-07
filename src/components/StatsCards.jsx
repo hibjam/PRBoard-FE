@@ -4,13 +4,6 @@ import axios from 'axios'
 const API_BASE = import.meta.env.VITE_API_BASE ?? ''
 const KM_TO_MILES = 0.621371
 
-const PERIOD_LABELS = {
-  WEEK:     'Past week',
-  MONTH:    'Past month',
-  YEAR:     'Past 12 months',
-  ALL_TIME: 'All time',
-}
-
 function formatDuration(seconds) {
   if (!seconds) return '—'
   const h = Math.floor(seconds / 3600)
@@ -25,7 +18,6 @@ function formatDist(km, units) {
 }
 
 function unitLabel(units) { return units === 'mi' ? 'mi' : 'km' }
-
 
 function formatElevation(metres) {
   if (metres == null) return '—'
@@ -79,6 +71,23 @@ function PeriodToggle({ period, onChange }) {
   )
 }
 
+function StravaLogo() {
+  return (
+    <img
+      src="/api_logo_pwrdBy_strava_horiz_white.png"
+      alt="Powered by Strava"
+      title="Powered by Strava"
+      style={{
+        position: 'absolute',
+        bottom: '12px',
+        left: '12px',
+        height: '14px',
+        opacity: 0.5,
+      }}
+    />
+  )
+}
+
 function EnduranceStats({ stat, units }) {
   const hasElevation = stat.totalElevationMetres != null && parseFloat(stat.totalElevationMetres) > 0
   const hasHr        = stat.avgHeartRate != null
@@ -115,6 +124,8 @@ function EnduranceStats({ stat, units }) {
           <Stat value={`${stat.peakAvgHeartRate} bpm`}                     label="Peak avg HR" />
         )}
       </div>
+
+      {stat.sources?.includes('STRAVA') && <StravaLogo />}
     </>
   )
 }
@@ -131,11 +142,13 @@ function WeightliftingStats({ stat }) {
         <Stat value={stat.count}                                       label="Sessions" />
         <Stat value={formatDuration(stat.totalDurationSeconds)}        label="Total time" />
         <Stat value={`${formatVolume(stat.longestActivityKm)} kg`}     label="Heaviest session" />
-        <Stat value={`${formatVolume(stat.avgDistanceKm)} kg`}         label="Avg volume" />
+        <Stat value={`${formatVolume(stat.avgDistanceKg)} kg`}         label="Avg volume" />
         {stat.currentWeeklyStreak > 0 && (
           <Stat value={`${stat.currentWeeklyStreak}w`}                 label="Streak" />
         )}
       </div>
+
+      {stat.sources?.includes('STRAVA') && <StravaLogo />}
     </>
   )
 }
@@ -174,7 +187,7 @@ function StatCard({ discipline, getHeaders, index, preferredUnits }) {
   return (
     <div
       className={`stat-card ${config.cssClass} fade-in`}
-      style={{ animationDelay: `${index * 80}ms` }}
+      style={{ animationDelay: `${index * 80}ms`, position: 'relative' }}
     >
       <div className="stat-card-bg-text">{config.label}</div>
 

@@ -70,14 +70,9 @@ function ActivityCard({ activity, preferredUnits }) {
     : null
 
   return (
-    <div
-      className="timeline-activity"
-      data-discipline={activity.discipline}
-    >
+    <div className="timeline-activity" data-discipline={activity.discipline}>
       <div className="timeline-activity-top">
-        <span className="timeline-pill">
-          {shortLabel}
-        </span>
+        <span className="timeline-pill">{shortLabel}</span>
         {activity.indoor && !isWeightlifting && (
           <span className="timeline-indoor">Indoor</span>
         )}
@@ -104,7 +99,8 @@ function ActivityCard({ activity, preferredUnits }) {
 }
 
 function RecentActivities({ activities, preferredUnits = 'km' }) {
-  const days = groupByDay(activities)
+  const days      = groupByDay(activities)
+  const hasStrava = activities.some(a => a.source === 'STRAVA')
 
   if (days.length === 0) {
     return (
@@ -142,6 +138,17 @@ function RecentActivities({ activities, preferredUnits = 'km' }) {
           ))}
         </div>
       </div>
+
+      {hasStrava && (
+        <div style={{ padding: '8px 16px 4px' }}>
+          <img
+            src="/api_logo_pwrdBy_strava_horiz_white.png"
+            alt="Powered by Strava"
+            title="Powered by Strava"
+            style={{ height: '14px', opacity: 0.5 }}
+          />
+        </div>
+      )}
     </div>
   )
 }
